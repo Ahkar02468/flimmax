@@ -71,6 +71,62 @@ async function displayPopularShows(){
      })
 }
 
+async function displayMovieDetails(){
+     const movieId = window.location.search.split('=')[1];
+     console.log(movieId);
+     const results = await fetchAPIData(`/movie/${movieId}`);
+     console.log(results);
+     const div = document.createElement('div');
+     // div.classList.add('details-top');
+          div.innerHTML = `
+          <div calss="details-top">
+          <div>
+            ${
+               results.poster_path ?
+               `<img
+               src="https://www.themoviedb.org/t/p/w500/${results.poster_path}"
+               class="card-img-top"
+               alt="Movie Title"
+             />` :
+             `<img
+             src="../images/no-image.jpg"
+             class="card-img-top"
+             alt="Movie Title"
+           />`
+            }
+          </div>
+          <div>
+            <h2>${results.title}</h2>
+            <p>
+              <i class="fas fa-star text-primary"></i>
+              ${results.vote_average.toFixed(1)} / 10
+            </p>
+            <p class="text-muted">Release Date: ${results.release_date}</p>
+            <p>
+              ${results.overview}
+            </p>
+            <h5>Genres</h5>
+            <ul class="list-group">
+               ${results.genres.map( genre => `<li>${genre.name}</>`).join('')}
+            </ul>
+            <a href="#" target="_blank" class="btn">${results.homepage}</a>
+          </div>
+        </div>
+        <div class="details-bottom">
+          <h2>Movie Info</h2>
+          <ul>
+            <li><span class="text-secondary">Budget:</span> $${results.budget}</li>
+            <li><span class="text-secondary">Revenue:</span> $${results.revenue}</li>
+            <li><span class="text-secondary">Runtime:</span> ${results.runtime} minutes</li>
+            <li><span class="text-secondary">Status:</span> ${results.status}</li>
+          </ul>
+          <h4>Production Companies</h4>
+          <div class="list-group">${results.production_companies.map( company => `<li>${company.name}</li>`).join('')}</div>
+          </div>
+          `;
+          document.querySelector('#movie-details').appendChild(div);
+}
+
 // fetch API from themoviedb.org
 async function fetchAPIData(endpoint){
      showSpinner();
@@ -113,6 +169,7 @@ function init(){
                console.log('Shows');
                break;
           case '/movie-details.html':
+               displayMovieDetails();
                console.log('Movie Details');
                break;
           case '/tv-details.html':

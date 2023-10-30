@@ -74,55 +74,68 @@ async function displayPopularShows(){
 async function displayMovieDetails(){
      const movieId = window.location.search.split('=')[1];
      // console.log(movieId);
-     const results = await fetchAPIData(`/movie/${movieId}`);
-     // console.log(results);
+     const movie = await fetchAPIData(`/movie/${movieId}`);
+     addBackgroundImage('movie', movie.backdrop_path);
+     console.log(movie);
      const div = document.createElement('div');
      // div.classList.add('details-top');
           div.innerHTML = `
-          <div calss="details-top">
+          <div class="details-top">
           <div>
-            ${
-               results.poster_path ?
-               `<img
-               src="https://www.themoviedb.org/t/p/w500/${results.poster_path}"
-               class="card-img-top"
-               alt="Movie Title"
-             />` :
-             `<img
-             src="../images/no-image.jpg"
-             class="card-img-top"
-             alt="Movie Title"
-           />`
-            }
+          ${
+            movie.poster_path
+              ? `<img
+            src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
+            class="card-img-top"
+            alt="${movie.title}"
+          />`
+              : `<img
+          src="../images/no-image.jpg"
+          class="card-img-top"
+          alt="${movie.title}"
+        />`
+          }
           </div>
           <div>
-            <h2>${results.title}</h2>
+            <h2>${movie.title}</h2>
             <p>
               <i class="fas fa-star text-primary"></i>
-              ${results.vote_average.toFixed(1)} / 10
+              ${movie.vote_average.toFixed(1)} / 10
             </p>
-            <p class="text-muted">Release Date: ${results.release_date}</p>
+            <p class="text-muted">Release Date: ${movie.release_date}</p>
             <p>
-              ${results.overview}
+              ${movie.overview}
             </p>
             <h5>Genres</h5>
             <ul class="list-group">
-               ${results.genres.map( genre => `<li>${genre.name}</>`).join('')}
+              ${movie.genres.map((genre) => `<li>${genre.name}</li>`).join('')}
             </ul>
-            <a href="${results.homepage}" target="_blank" class="btn">${results.homepage}</a>
+            <a href="${
+              movie.homepage
+            }" target="_blank" class="btn">Visit Movie Homepage</a>
           </div>
         </div>
         <div class="details-bottom">
           <h2>Movie Info</h2>
           <ul>
-            <li><span class="text-secondary">Budget:</span> $${addCommas(results.budget)}</li>
-            <li><span class="text-secondary">Revenue:</span> $${addCommas(results.revenue)}</li>
-            <li><span class="text-secondary">Runtime:</span> ${results.runtime} minutes</li>
-            <li><span class="text-secondary">Status:</span> ${results.status}</li>
+            <li><span class="text-secondary">Budget:</span> $${addCommas(
+              movie.budget
+            )}</li>
+            <li><span class="text-secondary">Revenue:</span> $${addCommas(
+              movie.revenue
+            )}</li>
+            <li><span class="text-secondary">Runtime:</span> ${
+              movie.runtime
+            } minutes</li>
+            <li><span class="text-secondary">Status:</span> ${movie.status}</li>
           </ul>
           <h4>Production Companies</h4>
-          <div class="list-group">${results.production_companies.map( company => `<li>${company.name}</li>`).join('')}</div>
+          <div class="list-group">
+            ${movie.production_companies
+              .map((company) => `<span>${company.name}</span>`)
+              .join(', ')}
           </div>
+        </div>
           `;
           document.querySelector('#movie-details').appendChild(div);
 }
@@ -131,56 +144,82 @@ async function displayTVDetails(){
      const tvId = window.location.search.split('=')[1];
      console.log(tvId);
      const results = await fetchAPIData(`/tv/${tvId}`);
+     addBackgroundImage('show', results.backdrop_path)
      console.log(results);
      const div = document.createElement('div');
      div.innerHTML = `
           <div class="details-top">
-          <div>
-          ${
-               results.poster_path ?
-               `<img
-               src="https://www.themoviedb.org/t/p/w500/${results.poster_path}"
-               class="card-img-top"
-               alt="${results.name}"
-               />` :
-               `<img
-               src="../images/no-image.jpg"
-               class="card-img-top"
-               alt="${results.name}"
-               />`
-          }
+               <div>
+               ${
+                    results.poster_path ?
+                    `<img
+                    src="https://www.themoviedb.org/t/p/w500/${results.poster_path}"
+                    class="card-img-top"
+                    alt="${results.name}"
+                    />` :
+                    `<img
+                    src="../images/no-image.jpg"
+                    class="card-img-top"
+                    alt="${results.name}"
+                    />`
+               }
+               </div>
+                    <div>
+                    <h2>${results.name}</h2>
+                    <p>
+                    <i class="fas fa-star text-primary"></i>
+                    ${results.vote_average.toFixed(1)} / 10
+                    </p>
+                    <p class="text-muted">Release Date: ${results.first_air_date}</p>
+                    <p>
+                    ${results.overview}
+                    </p>
+                    <h5>Genres</h5>
+                    <ul class="list-group">
+                    ${results.genres.map( genre => genre.name).join(', ')}
+                    </ul>
+                    ass="btn">Visit Show Homepage</a>
+               </div>
           </div>
-          <div>
-          <h2>${results.name}</h2>
-          <p>
-          <i class="fas fa-star text-primary"></i>
-          ${results.vote_average.toFixed(1)} / 10
-          </p>
-          <p class="text-muted">Release Date: ${results.first_air_date}</p>
-          <p>
-          ${results.overview}
-          </p>
-          <h5>Genres</h5>
-          <ul class="list-group">
-          ${results.genres.map( genre => genre.name).join(', ')}
-          </ul>
-          <a href="${results.homepage}" target="_blank" class="btn">Visit Show Homepage</a>
+          <div class="details-bottom">
+               <h2>Show Info</h2>
+               <ul>
+               <li><span class="text-secondary">Number Of Episodes:</span> ${results.number_of_episodes}</li>
+               <li>
+               <span class="text-secondary">Last Episode To Air:</span> ${results.last_episode_to_air.name}
+               </li>
+               <li><span class="text-secondary">Status:</span> ${results.status}</li>
+               </ul>
+               <h4>Production Companies</h4>
+               <div class="list-group">${results.production_companies.map(company => company.name).join(', ')}</div>
           </div>
-     </div>
-     <div class="details-bottom">
-          <h2>Show Info</h2>
-          <ul>
-          <li><span class="text-secondary">Number Of Episodes:</span> ${results.number_of_episodes}</li>
-          <li>
-          <span class="text-secondary">Last Episode To Air:</span> ${results.last_episode_to_air.name}
-          </li>
-          <li><span class="text-secondary">Status:</span> ${results.status}</li>
-          </ul>
-          <h4>Production Companies</h4>
-          <div class="list-group">${results.production_companies.map(company => company.name).join(', ')}</div>
-     </div>
      `;
      document.querySelector('#show-details').appendChild(div);
+}
+
+function addBackgroundImage(type, path){
+     console.log(path);
+     const overleImage = document.createElement('div');
+     overleImage.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${path})`;
+     console.log(`https://image.tmdb.org/t/p/original${path}`)
+     overleImage.style.backgroundSize = 'cover';
+     overleImage.style.backgroundPosition = 'center';
+     overleImage.style.backgroundRepeat = 'no-repeat';
+     overleImage.style.width = '100vh';
+     overleImage.style.height = '100vh';
+     overleImage.style.position = 'absolute';
+     overleImage.style.top = '0';
+     overleImage.style.left = '0';
+     overleImage.style.zIndex = '-1';
+     overleImage.style.opacity = '0.1';
+
+
+     if(type === 'movie'){
+          document.querySelector('#movie-details').appendChild(overleImage);
+     }else{
+          document.querySelector('#show-details').appendChild(overleImage);
+     }
+     
 }
 
 function addCommas(number) {
@@ -195,7 +234,7 @@ function addCommas(number) {
    
      // Return the formatted number.
      return `${wholeNumberWithCommas}${decimal ? `.${decimal}` : ""}`;
-   }
+   } 
 
 // fetch API from themoviedb.org
 async function fetchAPIData(endpoint){

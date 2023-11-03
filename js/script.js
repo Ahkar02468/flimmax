@@ -10,6 +10,7 @@ const global = {
           term: '',
           page: 1,
           total_pages: 1,
+          total_results: 0
      }
 };
 
@@ -310,7 +311,7 @@ async function searchApiData(){
      showSpinner();
      const API_KEY = global.api.apiKey;
      const API_URL = global.api.apiURL;
-     const response = await fetch(`${API_URL}/search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}`);
+     const response = await fetch(`${API_URL}/search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}&page=${global.search.page}`);
      // console.log(response);
      const data = await response.json();
      hideSpinner();
@@ -336,12 +337,15 @@ function hideSpinner(){
 
 async function search(){
      const searchString = window.location.search;
-     console.log(searchString);
+     // console.log(searchString);
      const searchWord = new URLSearchParams(searchString);
      global.search.type = searchWord.get('type');
      global.search.term = searchWord.get('search-term');
      if(global.search.term !== '' && global.search.term !== null){
-          const {results,total_pages,total_results} = await searchApiData();
+          const {results,page,total_pages,total_results} = await searchApiData();
+          global.search.page = page;
+          global.search.total_pages = total_pages;
+          global.search.total_results = total_results;
           console.log(results);
           if(results.length === 0){
                alertBox('No results found!!');
@@ -352,10 +356,17 @@ async function search(){
      }else{
           alertBox('Please enter the word you want to search!');
      }
+
+     
      // const results = await searchApiData();
 }
 
 function displaySearchResults(results){
+     //remove previous results of search
+     document.querySelector('#search-results-heading').innerHTML = '';
+     document.querySelector('#pagination').innerHTML = '';
+     document.querySelector('#search-results').innerHTML = '';
+
      results.forEach((result => {
           const div = document.createElement('div');
           div.innerHTML = `
@@ -372,8 +383,45 @@ function displaySearchResults(results){
                </div>
           `;
 
+          document.querySelector('#search-results-heading').innerHTML = `
+          <h2>${results.length} of ${global.search.total_results} RESULTS FOR "${global.search.term}" </h2>
+     `;
+
           document.querySelector('#search-results').appendChild(div);
      }));
+
+     displayPagination();
+}
+
+function displayPagination(){
+     const div = document.createElement('div');
+     div.classList.add('pagination');
+     div.innerHTML = `
+          <button class="btn btn-primary" id="prev">Prev</button>
+          <button class="btn btn-primary" id="next">Next</button>
+          <div class="page-counter">Page ${global.search.page} of ${global.search.total_pages}</div>
+     `;
+
+     document.querySelector('#pagination').appendChild(div);
+
+     if(global.search.page ===  1){
+          document.querySelector('#prev').disabled = true;
+     }
+     if(global.search.page ===  global.search.total_pages){
+          document.querySelector('#next').disabled = true;
+     }
+     //next page
+     document.querySelector('#next').addEventListener('click',async () => {
+          global.search.page++;
+          const {results,total_pages} = await searchApiData();
+          displaySearchResults(results);
+     });
+     //prev page
+     document.querySelector('#prev').addEventListener('click',async () => {
+          global.search.page--;
+          const {results,total_pages} = await searchApiData();
+          displaySearchResults(results);
+     });
 }
 
 function alertBox(message, alertTypeClass = 'error'){

@@ -3,7 +3,7 @@ const global = {
      currentLocation: window.location.pathname,
      api: {
           apiKey: '6eb001565213c54cab73fe846821c8a9',
-          apiURL: 'https://api.themoviedb.org/3/'
+          apiURL: 'https://api.themoviedb.org/3'
      },
      search: {
           type: '',
@@ -16,7 +16,7 @@ const global = {
 
 // display fetched data
 async function displayPopularMovies() {
-     const { results } = await fetchAPIData('movie/popular');
+     const { results } = await fetchAPIData('/movie/popular');
      results.forEach(movie => {
           console.log(movie);
           const div = document.createElement('div');
@@ -96,7 +96,7 @@ function initSwiper() {
 }
 
 async function displayPopularShows() {
-     const { results } = await fetchAPIData('tv/popular');
+     const { results } = await fetchAPIData('/tv/popular');
      results.forEach(show => {
           // console.log(show);
           const div = document.createElement('div');
@@ -132,7 +132,7 @@ async function displayMovieDetails() {
      const movieId = window.location.search.split('=')[1];
      console.log(movieId);
      // https://api.themoviedb.org/3/movie/movie_id?language=en-US
-     const movie = await fetchAPIData(`movie/${movieId}`);
+     const movie = await fetchAPIData(`/movie/${movieId}`);
      addBackgroundImage('movie', movie.backdrop_path);
      console.log(movie);
      const div = document.createElement('div');
@@ -198,7 +198,7 @@ async function displayMovieDetails() {
 async function displayTVDetails() {
      const tvId = window.location.search.split('=')[1];
      console.log(tvId);
-     const results = await fetchAPIData(`tv/${tvId}`);
+     const results = await fetchAPIData(`/tv/${tvId}`);
      addBackgroundImage('show', results.backdrop_path)
      console.log(results);
      const div = document.createElement('div');
